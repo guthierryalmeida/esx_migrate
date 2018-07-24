@@ -19,7 +19,7 @@ RegisterCommand('migrate', function(source, args, rawCommand)
 end, true)
 
 function migrateVehicles()
-	MySQL.Async.fetchAll('SELECT * FROM user_parkings2', {}, function(result)
+	MySQL.Async.fetchAll('SELECT * FROM owned_vehicles', {}, function(result)
 		for i=1, #result, 1 do
 			Citizen.Wait(0)
 			local vehicleProps  = json.decode(result[i].vehicle)
@@ -52,7 +52,7 @@ function migrateVehicle(vehicleProps, vehicleOld)
 	io.write('esx_migrate: migrating . . . ')
 	currentExecuting = currentExecuting + 1
 
-	MySQL.Async.execute('UPDATE `user_parkings2` SET `vehicle` = @vehicleNew, `plate` = @plateNew WHERE `vehicle` LIKE "%' .. vehicleOld.plate .. '%"',
+	MySQL.Async.execute('UPDATE `owned_vehicles` SET `vehicle` = @vehicleNew, `plate` = @plateNew WHERE `vehicle` LIKE "%' .. vehicleOld.plate .. '%"',
 	{
 		['@vehicleNew'] = json.encode(vehicleProps),
 		['@plateNew']   = vehicleProps.plate,
