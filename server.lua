@@ -70,8 +70,8 @@ function GeneratePlate()
 
 	while true do
 
-		if Config.PlateUseDash then
-			generatedPlate = string.upper(GetRandomLetter(Config.PlateLetters) .. '-' .. GetRandomNumber(Config.PlateNumbers))
+		if Config.PlateUseSpace then
+			generatedPlate = string.upper(GetRandomLetter(Config.PlateLetters) .. ' ' .. GetRandomNumber(Config.PlateNumbers))
 		else
 			generatedPlate = string.upper(GetRandomLetter(Config.PlateLetters) .. GetRandomNumber(Config.PlateNumbers))
 		end
