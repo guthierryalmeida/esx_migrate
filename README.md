@@ -1,17 +1,20 @@
 # esx_migrate
 This script migrates the 'old' `owned_vehicles` database to an improved system. Very basic script and does the job.
 
-Don't forget to change the database to look like this, see how `plate` is the primary key.
+When starting this migrate, make sure you have manually added the database column `plate`, the database should look exactly like this:
 
 ```sql
 CREATE TABLE `owned_vehicles` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
 	`owner` VARCHAR(30) NULL DEFAULT NULL COLLATE 'utf8mb4_bin',
-	`plate` VARCHAR(12) NOT NULL COLLATE 'utf8mb4_bin',
 	`vehicle` LONGTEXT NULL COLLATE 'utf8mb4_bin',
+	`plate` VARCHAR(8) NOT NULL COLLATE 'utf8mb4_bin',
 
-	PRIMARY KEY (`plate`)
+	PRIMARY KEY (`id`)
 );
 ```
+
+After migrating the database you can safly remove the `id` column and set the primary key to `plate`
 
 ### What's so good with this anyways?
 Currently with all official esx scripts getting a registered vehicle and its owner is not optimized at all.

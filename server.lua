@@ -22,11 +22,14 @@ function migrateVehicles()
 	MySQL.Async.fetchAll('SELECT * FROM owned_vehicles', {}, function(result)
 		for i=1, #result, 1 do
 			Citizen.Wait(0)
-			local vehicleProps  = json.decode(result[i].vehicle)
-			local vehicle       = json.decode(result[i].vehicle) -- old vehicle
-			vehicleProps.plate  = GeneratePlate()                -- generate plate
 
-			migrateVehicle(vehicleProps, vehicle)
+			local vehicleID = result[i].id
+			local vehicleProps = json.decode(result[i].vehicle)
+			local oldPlate = vehicleProps.plate
+
+			vehicleProps.plate = GeneratePlate() -- generate plate
+
+			migrateVehicle(vehicleProps, oldPlate, vehicleID)
 		end
 
 		print('\n\n\n')
@@ -44,21 +47,20 @@ Citizen.CreateThread(function()
 	end
 end)
 
-function migrateVehicle(vehicleProps, vehicleOld)
+function migrateVehicle(vehicleProps, oldPlate, vehicleID)
 	while currentExecuting > Config.MaxMigrates do
-		Citizen.Wait(0)
+		Citizen.Wait(2)
 	end
 
 	io.write('esx_migrate: migrating . . . ')
 	currentExecuting = currentExecuting + 1
 
-	MySQL.Async.execute('UPDATE `owned_vehicles` SET `vehicle` = @vehicleNew, `plate` = @plateNew WHERE `vehicle` LIKE "%' .. vehicleOld.plate .. '%"',
-	{
+	MySQL.Async.execute('UPDATE `owned_vehicles` SET `vehicle` = @vehicleNew, `plate` = @plateNew WHERE `id` = @vehicleID', {
 		['@vehicleNew'] = json.encode(vehicleProps),
-		['@plateNew']   = vehicleProps.plate,
-		['@plateOld']   = vehicleOld.plate
+		['@plateNew'] = vehicleProps.plate,
+		['@vehicleID'] = vehicleID
 	}, function(rowsChanged)
-		io.write('OK! (' .. vehicleOld.plate .. ' > ' .. vehicleProps.plate .. ')\n')
+		io.write(('OK! (%s > %s)\n'):format(oldPlate, vehicleProps.plate))
 		currentExecuting = currentExecuting - 1
 	end)
 
@@ -69,7 +71,6 @@ function GeneratePlate()
 	local generatedPlate
 
 	while true do
-
 		if Config.PlateUseSpace then
 			generatedPlate = string.upper(GetRandomLetter(Config.PlateLetters) .. ' ' .. GetRandomNumber(Config.PlateNumbers))
 		else
@@ -84,6 +85,7 @@ function GeneratePlate()
 	end
 
 	RegisteredPlateTable[generatedPlate] = true
+
 	return generatedPlate
 end
 
