@@ -13,7 +13,6 @@ server_scripts {
 }
 
 dependencies {
-	'essentialmode',
 	'es_extended',
 	'mysql-async'
 }
